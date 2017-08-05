@@ -66,7 +66,7 @@
     </div>
         </nav>
         <div id="err_block" style="white-space: pre-wrap;background-color: #a94442;    top: -20px;     z-index : 1; 
-"><p id="err_list"></p></div>
+"><p id="err_list"><c:out value="${it.errorMessage}" /></p></div>
         
       
         <p>

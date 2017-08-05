@@ -48,10 +48,15 @@ public class LocalQuizREST {
         if (person == null || quiz == null) {
             throw new IllegalArgumentException("can't subscribe this person (" + personId + ") to the quiz " + quizId  + "because either the personId or the quizId is invalid");
         }
+        if(quiz.getParticipants().contains(person)){
+            return Response.status(Response.Status.PRECONDITION_FAILED).entity(person.getName() + " is already subscribed to this quiz.").build();
+        }
         quiz.addParticipant(person);
         repository.mergeQuiz(quiz);
         if(quiz.getParticipants().size() >= quiz.getMinPeople()){
-            quizCommunicator.subscribeToQuiz(quiz.getId());
+            Response response = quizCommunicator.subscribeToQuiz(quiz.getId());
+                        if(response.getStatus() / 100 != 2)
+                return Response.status(Response.Status.EXPECTATION_FAILED).entity(person.getName() + " is subscribed to " + quiz.getName() +", automatic subscribing as a team to Losflippos might have failed. Please subscribe manually later.").build();
         }
         map.put("members", repository.getAllPersons());
         map.put("quizzes", repository.getAllQuizzes());
@@ -69,10 +74,16 @@ public class LocalQuizREST {
         if (person == null || quiz == null) {
             throw new IllegalArgumentException("can't unsubscribe this person (" + personId + ") from the quiz " + quizId  + "because either the personId or the quizId is invalid");
         }
+        if(!quiz.getParticipants().contains(person)){
+            return Response.status(Response.Status.PRECONDITION_FAILED).entity(person.getName() + " is not subscribed to this quiz.").build();
+        }
         quiz.removeParticipant(person);
         repository.mergeQuiz(quiz);
         if(quiz.getParticipants().size() < quiz.getMinPeople()){
-            quizCommunicator.unsubscribeFromQuiz(quiz.getId());
+            Response response = quizCommunicator.unsubscribeFromQuiz(quiz.getId());
+            //all 200-299 responses are "succes" responses
+            if(response.getStatus() / 100 != 2)
+                return Response.status(Response.Status.EXPECTATION_FAILED).entity(person.getName() + " is unsubscribed from " + quiz.getName() +", automatic unsubscribing as a team from Losflippos might have failed. Please unsubscribe manually later.").build();
         }
         return Response.ok().build();
     }

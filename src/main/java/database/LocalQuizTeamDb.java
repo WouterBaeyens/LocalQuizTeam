@@ -182,7 +182,7 @@ public class LocalQuizTeamDb implements LocalQuizTeamRepositoryUI {
         }
         try {
             //ut.begin();
-            em.remove(quiz);
+            em.remove(q);
             //ut.commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive())
