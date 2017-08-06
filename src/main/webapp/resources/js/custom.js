@@ -63,11 +63,24 @@ function deleteMember(email){
     });
 }
 
+function refresh(){
+    $.ajax({
+        type: "POST",
+        url: "/LocalQuizTeam/api/update",
+        success: function (msg) {
+                location.reload(true);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          $('#err_list').html(jqXHR.responseText + "\n");
+        }
+    });
+}
+
 function subscribeMember(email,quizId){
     var encoded_email = encodeURIComponent(email);
     var encoded_quizId = encodeURIComponent(quizId);
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: "/LocalQuizTeam/api/quiz/" + encoded_quizId +"/subscribe/" + encoded_email,
         success: function (msg) {
                 location.reload(true);
@@ -82,7 +95,7 @@ function unsubscribeMember(email,quizId){
     var encoded_email = encodeURIComponent(email);
     var encoded_quizId = encodeURIComponent(quizId);
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: "/LocalQuizTeam/api/quiz/" + encoded_quizId +"/unsubscribe/" + encoded_email,
         success: function (msg) {
                 location.reload(true);

@@ -76,7 +76,9 @@
             In the table below you can keep track of who wants to join which quiz, 
             as well as add and remove participants for each quiz.
         </p>
-        <p> <c:out value="${it.test.name}" /></p>
+        <button type="button" onclick="refresh()" class="btn btn-default btn-sm">
+          <span class="glyphicon glyphicon-refresh"></span> Refresh
+        </button>
         <table class="table">
             <thead>
             <th> add participant </th>

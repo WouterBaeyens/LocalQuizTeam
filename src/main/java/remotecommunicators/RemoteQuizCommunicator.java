@@ -38,8 +38,7 @@ public class RemoteQuizCommunicator{
     public Quiz[] getForeignQuizzes() {
         Client client = ClientBuilder.newClient();
         WebTarget target = client
-                .target("http://localhost:8080/LosFlippos/api/quiz/active")
-                .queryParam("name", "harry");
+                .target("http://localhost:8080/LosFlippos/api/quiz/active");
         Quiz[] response = target.request(MediaType.APPLICATION_JSON).get(Quiz[].class);
         return response;
     }

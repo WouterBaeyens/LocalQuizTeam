@@ -5,6 +5,8 @@
  */
 package service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import database.LocalQuizTeamRepositoryUI;
 import domain.Person;
 import domain.Quiz;
@@ -48,7 +50,7 @@ import remotecommunicators.RemoteQuizCommunicator;
  * @author Wouter
  */
 @Stateless
-@Path("api/quizinfo")
+@Path("api/")
 public class LocalQuizTeamService {
 
     @EJB
@@ -66,18 +68,34 @@ public class LocalQuizTeamService {
     @Produces("text/html")
     //@Produces("text/plain")
     public Response index() {
-        //createStub();
         Map<String, Object> map = new HashMap<>();
-        try{
+        /*try{
             updateQuizDB(quizCommunicator.getForeignQuizzes());
         } catch(NotFoundException e){
             map.put("errorMessage", "Couldn't reach the LosFlippos Database for updates, so the quizzes shown here may be outdated");
         } catch(Exception e){
-            map.put("errorMessage", "error getting data from LosFlippos: " + e.getLocalizedMessage());
-        }
+            map.put("errorMessage", "error updating with data from LosFlippos: " + e.getLocalizedMessage());
+        }*/
         map.put("members", repository.getAllPersons());
         map.put("quizzes", repository.getAllQuizzes());
-        return Response.ok(new Viewable("/home", map)).build();
+        return Response.ok(new Viewable("/index", map)).build();
+    }
+    
+        @POST
+    @Path("/update")
+    @Produces("text/html")
+    //@Produces("text/plain")
+    public Response updateDB() throws JsonProcessingException {
+        try{
+            updateQuizDB(quizCommunicator.getForeignQuizzes());
+        } catch(NotFoundException e){
+            return Response.status(404).entity("Couldn't reach the LosFlippos Database for updates, so the quizzes shown here may be outdated").build();
+        } catch(Exception e){
+            return Response.status(500).entity("error updating with data from LosFlippos: " + e.getLocalizedMessage()).build();
+        }
+        List<Quiz> quizzes = repository.getAllQuizzes();
+        String json = new ObjectMapper().writeValueAsString(quizzes);
+        return Response.ok(json, MediaType.APPLICATION_JSON).build();
     }
     
     public void updateQuiz(Quiz quiz) {

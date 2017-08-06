@@ -16,6 +16,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -37,16 +38,15 @@ public class LocalQuizREST {
     
     private String quizTeamName = "Agata Quiz Team";
     
-    @GET
+    @POST
     @Path("/{quizId}/subscribe/{personId}")
     //@Produces("text/plain")
     public Response subscribeParticipant(@PathParam("quizId") long quizId, @PathParam("personId") String personId) {
         //createStub();
-        Map<String, Object> map = new HashMap<>();
         Person person = repository.getPerson(personId);
         Quiz quiz = repository.getQuiz(quizId);
         if (person == null || quiz == null) {
-            throw new IllegalArgumentException("can't subscribe this person (" + personId + ") to the quiz " + quizId  + "because either the personId or the quizId is invalid");
+            return Response.status(404).entity("can't subscribe this person (" + personId + ") to the quiz " + quizId  + "because either the personId or the quizId were not found").build();
         }
         if(quiz.getParticipants().contains(person)){
             return Response.status(Response.Status.PRECONDITION_FAILED).entity(person.getName() + " is already subscribed to this quiz.").build();
@@ -58,12 +58,10 @@ public class LocalQuizREST {
                         if(response.getStatus() / 100 != 2)
                 return Response.status(Response.Status.EXPECTATION_FAILED).entity(person.getName() + " is subscribed to " + quiz.getName() +", automatic subscribing as a team to Losflippos might have failed. Please subscribe manually later.").build();
         }
-        map.put("members", repository.getAllPersons());
-        map.put("quizzes", repository.getAllQuizzes());
         return Response.ok().build();
     }
     
-        @GET
+        @POST
     @Path("/{quizId}/unsubscribe/{personId}")
     @Produces("text/html")
     //@Produces("text/plain")
@@ -72,7 +70,7 @@ public class LocalQuizREST {
         Person person = repository.getPerson(personId);
         Quiz quiz = repository.getQuiz(quizId);
         if (person == null || quiz == null) {
-            throw new IllegalArgumentException("can't unsubscribe this person (" + personId + ") from the quiz " + quizId  + "because either the personId or the quizId is invalid");
+            return Response.status(404).entity("can't unsubscribe this person (" + personId + ") from the quiz (" + quizId  + ") because either the personId or the quizId is invalid").build();
         }
         if(!quiz.getParticipants().contains(person)){
             return Response.status(Response.Status.PRECONDITION_FAILED).entity(person.getName() + " is not subscribed to this quiz.").build();
